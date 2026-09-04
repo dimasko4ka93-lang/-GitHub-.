@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 def filter_by_state(
@@ -18,7 +18,9 @@ def sort_by_date(
     reverse: bool = True
 ) -> List[Dict[str, Any]]:
     """
-    Сортирует список операций по дате (ключ 'date') и возвращает новый отсортированный список.
+    Сортирует список операций по дате
+    (ключ 'date')
+    и возвращает новый отсортированный список.
 
     """
     def _parse_date(op: Dict[str, Any]) -> datetime:
