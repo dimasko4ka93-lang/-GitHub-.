@@ -6,36 +6,35 @@ from src.masks import get_mask_card_number as _mask_card_number
 
 def mask_account_card(info: str) -> str:
     """
-    Принимает одну строку вида:
+    Принимает строку вида:
       - "Visa Platinum 7000792289606361"
+      - "Visa Platinum 7000 7922 8960 6361"
       - "Счет 73654108430135874305"
 
-    Определяет тип (карта или счёт) и применяет соответствующую маскировку
-    через переиспользуемые функции из src/masks.py.
+    Определяет тип (карта или счёт) и применяет маскировку.
+    Пробелы в номере игнорируются.
     """
     info_stripped = info.strip()
+    if not info_stripped:
+        return info_stripped
+
+    # Собираем ВСЕ цифры из строки
+    digits = "".join(ch for ch in info_stripped if ch.isdigit())
 
     if info_stripped.startswith("Счет"):
-        parts = info_stripped.split()
-        if len(parts) < 2:
-            return info_stripped
-
-        account_number = parts[-1]
-        # Вызываем твою функцию get_mask_account через алиас _mask_account_number
-        masked_number = _mask_account_number(account_number)
-        return f"Счет {masked_number}"
-
+        if len(digits) >= 4:
+            masked_number = _mask_account_number(digits)
+            return f"Счет {masked_number}"
+        return info_stripped
     else:
-        parts = info_stripped.split()
-        if len(parts) < 2:
-            return info_stripped
-
-        card_number = parts[-1]
-        # Вызываем твою функцию get_mask_card_number через алиас _mask_card_number
-        masked_number = _mask_card_number(card_number)
-
-        base_text = " ".join(parts[:-1])
-        return f"{base_text} {masked_number}"
+        if len(digits) == 16:
+            masked_number = _mask_card_number(digits)
+            # Сохраняем текст до номера (префикс карты)
+            prefix = "".join(ch for ch in info_stripped if not ch.isdigit()).strip()
+            if prefix:
+                return f"{prefix} {masked_number}"
+            return masked_number
+        return info_stripped
 
 
 def get_date(iso_datetime_str: str) -> str:
