@@ -3,8 +3,7 @@ from typing import Any, Dict, List
 
 
 def filter_by_state(
-    operations: List[Dict[str, Any]],
-    state: str = "EXECUTED"
+    operations: List[Dict[str, Any]], state: str = "EXECUTED"
 ) -> List[Dict[str, Any]]:
     """
     Возвращает список операций, у которых ключ 'state' равен указанному значению.
@@ -14,8 +13,7 @@ def filter_by_state(
 
 
 def sort_by_date(
-    operations: List[Dict[str, Any]],
-    reverse: bool = True
+    operations: List[Dict[str, Any]], reverse: bool = True
 ) -> List[Dict[str, Any]]:
     """
     Сортирует список операций по дате
@@ -23,6 +21,7 @@ def sort_by_date(
     и возвращает новый отсортированный список.
 
     """
+
     def _parse_date(op: Dict[str, Any]) -> datetime:
         date_str = op.get("date", "")
         # fromisoformat корректно обрабатывает микросекунды
