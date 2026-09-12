@@ -1,7 +1,7 @@
 import pytest
 from src.masks import get_mask_card_number, get_mask_account
 
-# Фикстура, если вдруг понадобится позже для сложной подготовки
+
 @pytest.fixture
 def base_card_data():
     return [
@@ -11,16 +11,18 @@ def base_card_data():
     ]
 
 
-@pytest.mark.parametrize(
-    "card,expected",
-    [
-        ("7000792289606361", "7000 79** **** 6361"),
-        ("1111222233334444", "1111 22** **** 4444"),
-        ("5555666677778888", "5555 66** **** 8888"),
-    ],
-)
-def test_get_mask_card_number_valid(card, expected):
-    assert get_mask_card_number(card) == expected
+@pytest.fixture
+def base_account_data():
+    return [
+        ("73654108430135874305", "**4305"),
+        ("98765432109876543210", "**3210"),
+        ("12345678", "**5678"),
+    ]
+
+
+def test_get_mask_card_number_valid(base_card_data):
+    for card, expected in base_card_data:
+        assert get_mask_card_number(card) == expected
 
 
 @pytest.mark.parametrize(
@@ -32,16 +34,9 @@ def test_get_mask_card_number_invalid(card):
         get_mask_card_number(card)
 
 
-@pytest.mark.parametrize(
-    "account,expected",
-    [
-        ("73654108430135874305", "**4305"),
-        ("98765432109876543210", "**3210"),
-        ("12345678", "**5678"),
-    ],
-)
-def test_get_mask_account_valid(account, expected):
-    assert get_mask_account(account) == expected
+def test_get_mask_account_valid(base_account_data):
+    for account, expected in base_account_data:
+        assert get_mask_account(account) == expected
 
 
 @pytest.mark.parametrize(
@@ -49,6 +44,5 @@ def test_get_mask_account_valid(account, expected):
     ["", "abc", "12", "123"],
 )
 def test_get_mask_account_invalid(account):
-    # Если логика в get_mask_account выбрасывает ValueError для коротких номеров — раскомментируй:
     with pytest.raises(ValueError):
         get_mask_account(account)
