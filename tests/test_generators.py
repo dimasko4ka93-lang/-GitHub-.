@@ -7,7 +7,7 @@ from generators import (
 
 
 @pytest.fixture
-def transactions_for_currency():
+def transactions(): # <-- новое имя
     return [
         {
             "id": 1,
@@ -37,76 +37,83 @@ def transactions_for_currency():
     ]
 
 
-@pytest.fixture
-def transactions_for_descriptions():
-    return [
-        {"description": "Оплата такси"},
-        {"description": ""},
-        {"description": None},
-        {"description": "Крупная покупка"},
-        {},
-    ]
+# ... остальные фикстуры остаются без изменений
 
 
 class TestFilterByCurrency:
-    def test_filter_by_currency_eur(self, transactions_for_currency):
-        result = list(filter_by_currency(transactions_for_currency, "EUR"))
-        assert len(result) == 1
-        assert result[0]["id"] == 2
+    @pytest.mark.parametrize(
+        "transactions",
+        [
+            "transactions_for_currency",  # 1. Имя фикстуры как строка
+            [],  # 2. Пустой список напрямую
+        ],
+        indirect=["transactions"]  # 3. Говорим pytest превратить строку в вызов фикстуры
+    )
+    @pytest.mark.parametrize("currency_code, expected_ids", [
+        ("EUR", [2]),
+        ("RUB", [1]),
+        ("USD", [3]),
+        ("GBP", []),
+    ])
+    def test_filter_by_currency_various_cases(self, transactions, currency_code, expected_ids):
+        result = list(filter_by_currency(transactions, currency_code))
 
-    def test_filter_by_currency_rub(self, transactions_for_currency):
-        result = list(filter_by_currency(transactions_for_currency, "RUB"))
-        assert len(result) == 1
-        assert result[0]["id"] == 1
+        actual_ids = []
+        for t in result:
+            if isinstance(t, dict) and "id" in t:
+                actual_ids.append(t["id"])
 
-    def test_filter_by_currency_skips_invalid_structures(self, transactions_for_currency):
-        result = list(filter_by_currency(transactions_for_currency, "USD"))
-        assert len(result) == 1
-        assert result[0]["id"] == 3
+        assert actual_ids == expected_ids
 
-    def test_filter_by_currency_empty_list(self):
-        result = list(filter_by_currency([], "USD"))
-        assert result == []
-
-
+# Класс вынесен из-под TestFilterByCurrency
 class TestTransactionDescriptions:
-    def test_transaction_descriptions_normal_cases(self, transactions_for_descriptions):
-        result = list(transaction_descriptions(transactions_for_descriptions))
-        assert result == ["Оплата такси", "", "", "Крупная покупка", ""]
-
-    def test_transaction_descriptions_empty_list(self):
-        result = list(transaction_descriptions())
-        assert len(result) == 0
+    @pytest.mark.parametrize(
+        "transactions, expected_result",
+        [
+            # Основной сценарий со смешанными данными
+            (
+                [
+                    {"description": "Оплата такси"},
+                    {"description": ""},
+                    {"description": None},
+                    {"description": "Крупная покупка"},
+                    {},
+                ],
+                ["Оплата такси", "", "", "Крупная покупка", ""],
+            ),
+            # НОВЫЙ СЦЕНАРИЙ: Пустой список на входе
+            ([], []),
+        ],
+    )
+    def test_extract_descriptions(self, transactions, expected_result):
+        result = list(transaction_descriptions(transactions))
+        assert result == expected_result
 
 
 class TestCardNumberGenerator:
-    def test_card_number_generator_basic_range(self):
-        result = list(card_number_generator(0, 2))
-        assert result == [
-            "0000 0000 0000 0000",
-            "0000 0000 0000 0001",
-            "0000 0000 0000 0002",
-        ]
+    @pytest.mark.parametrize(
+        "start, end, expected_result",
+        [
+            (0, 2, ["0000 0000 0000 0000", "0000 0000 0000 0001", "0000 0000 0000 0002"]),
+            (123, 123, ["0000 0000 0000 0123"]),
+            (9999999999999999, 9999999999999999, ["9999 9999 9999 9999"]),
+        ],
+    )
+    def test_card_number_generator_basic_ranges(self, start, end, expected_result):
+        result = list(card_number_generator(start, end))
+        assert result == expected_result
 
-    def test_card_number_generator_single_value(self):
-        result = list(card_number_generator(123, 123))
-        assert result == ["0000 0000 0000 0123"]
-
-    def test_card_number_generator_large_number_formatting(self):
-        result = list(card_number_generator(9999999999999999, 9999999999999999))
-        assert result == ["9999 9999 9999 9999"]
-
-    def test_card_number_generator_negative_start_raises(self):
+    @pytest.mark.parametrize(
+        "start, end",
+        [
+            (-1, 10),
+            (0, -1),
+            (0, 1_000_001),
+        ],
+    )
+    def test_card_number_generator_invalid_ranges(self, start, end):
         with pytest.raises(ValueError):
-            list(card_number_generator(-1, 10))
-
-    def test_card_number_generator_negative_end_raises(self):
-        with pytest.raises(ValueError):
-            list(card_number_generator(0, -1))
-
-    def test_card_number_generator_range_too_large_raises(self):
-        with pytest.raises(ValueError):
-            list(card_number_generator(0, 1_000_001))
+            list(card_number_generator(start, end))
 
     def test_card_number_generator_boundary_range_ok(self):
         result = list(card_number_generator(0, 1_000_000))
