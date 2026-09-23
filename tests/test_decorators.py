@@ -1,9 +1,8 @@
-import os
 import pytest
 from src.decorators import log
 
-
 # --- Тесты для вывода в консоль ---
+
 
 def test_log_success_to_console(capsys):
     @log()  # Не передаем filename, значит вывод в консоль
@@ -45,7 +44,7 @@ def test_log_success_to_file(temp_log_file):
 
     assert multiply(4, 5) == 20
 
-    with open(temp_log_file, 'r') as f:
+    with open(temp_log_file, "r") as f:
         content = f.read()
 
     assert "multiply ok" in content
@@ -59,7 +58,7 @@ def test_log_error_to_file(temp_log_file):
     with pytest.raises(IndexError):
         get_item([1, 2, 3], 10)
 
-    with open(temp_log_file, 'r') as f:
+    with open(temp_log_file, "r") as f:
         content = f.read()
 
     assert "get_item error: IndexError" in content

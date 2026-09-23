@@ -51,6 +51,5 @@ def test_get_mask_account_valid(account, expected):
     ["", "abc", "12", "123"],
 )
 def test_get_mask_account_invalid(account):
-    # Если логика в get_mask_account выбрасывает ValueError для коротких номеров — раскомментируй:
     with pytest.raises(ValueError):
         get_mask_account(account)

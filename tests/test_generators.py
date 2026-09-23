@@ -7,7 +7,7 @@ from generators import (
 
 
 @pytest.fixture
-def transactions(): # <-- новое имя
+def transactions():  # <-- новое имя
     return [
         {
             "id": 1,
@@ -47,15 +47,22 @@ class TestFilterByCurrency:
             "transactions_for_currency",  # 1. Имя фикстуры как строка
             [],  # 2. Пустой список напрямую
         ],
-        indirect=["transactions"]  # 3. Говорим pytest превратить строку в вызов фикстуры
+        indirect=[
+            "transactions"
+        ],  # 3. Говорим pytest превратить строку в вызов фикстуры
     )
-    @pytest.mark.parametrize("currency_code, expected_ids", [
-        ("EUR", [2]),
-        ("RUB", [1]),
-        ("USD", [3]),
-        ("GBP", []),
-    ])
-    def test_filter_by_currency_various_cases(self, transactions, currency_code, expected_ids):
+    @pytest.mark.parametrize(
+        "currency_code, expected_ids",
+        [
+            ("EUR", [2]),
+            ("RUB", [1]),
+            ("USD", [3]),
+            ("GBP", []),
+        ],
+    )
+    def test_filter_by_currency_various_cases(
+        self, transactions, currency_code, expected_ids
+    ):
         result = list(filter_by_currency(transactions, currency_code))
 
         actual_ids = []
@@ -64,6 +71,7 @@ class TestFilterByCurrency:
                 actual_ids.append(t["id"])
 
         assert actual_ids == expected_ids
+
 
 # Класс вынесен из-под TestFilterByCurrency
 class TestTransactionDescriptions:
@@ -94,7 +102,11 @@ class TestCardNumberGenerator:
     @pytest.mark.parametrize(
         "start, end, expected_result",
         [
-            (0, 2, ["0000 0000 0000 0000", "0000 0000 0000 0001", "0000 0000 0000 0002"]),
+            (
+                0,
+                2,
+                ["0000 0000 0000 0000", "0000 0000 0000 0001", "0000 0000 0000 0002"],
+            ),
             (123, 123, ["0000 0000 0000 0123"]),
             (9999999999999999, 9999999999999999, ["9999 9999 9999 9999"]),
         ],
