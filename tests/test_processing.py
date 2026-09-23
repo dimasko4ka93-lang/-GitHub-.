@@ -1,5 +1,3 @@
-import pytest
-
 from src.processing import filter_by_state, sort_by_date
 
 
@@ -41,7 +39,7 @@ def test_sort_by_date_descending():
     # Проверяем, что даты идут по убыванию
     dates = [op["date"] for op in result]
     for i in range(len(dates) - 1):
-        assert dates[i] >= dates[i + 1], f"Порядок нарушен между {i} и {i+1}"
+        assert dates[i] >= dates[i + 1], f"Порядок нарушен между {i} и {i + 1}"
 
 
 def test_sort_by_date_ascending():
@@ -54,7 +52,7 @@ def test_sort_by_date_ascending():
 
     dates = [op["date"] for op in result]
     for i in range(len(dates) - 1):
-        assert dates[i] <= dates[i + 1], f"Порядок нарушен между {i} и {i+1}"
+        assert dates[i] <= dates[i + 1], f"Порядок нарушен между {i} и {i + 1}"
 
 
 def test_sort_by_date_desc():
