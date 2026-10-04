@@ -62,7 +62,7 @@ def log(filename: Optional[str] = None) -> Callable[[F], F]:
                 # Короткое сообщение для логгера ошибок
                 err_msg = (
                     f"[{error_time}] Error in '{func.__name__}': {e}. "
-                    f"Inputs:{args},{kwargs}"
+                    f"Inputs: {args}"
                 )
                 root_logger.error(err_msg)
 
