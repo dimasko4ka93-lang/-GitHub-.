@@ -1,5 +1,6 @@
-import requests
 import xml.etree.ElementTree as ET
+
+import requests
 
 
 def get_transaction_amount_in_rub(transaction: dict) -> float:

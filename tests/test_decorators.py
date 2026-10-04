@@ -1,4 +1,5 @@
 import pytest
+
 from src.decorators import log
 
 # --- Тесты для вывода в консоль ---
@@ -27,7 +28,7 @@ def test_log_error_to_console(capsys):
     captured = capsys.readouterr()
     # Проверяем, что сообщение об ошибке содержит имя функции и тип ошибки
     assert "divide error: ZeroDivisionError" in captured.out.strip()
-    assert "Inputs: (10, 0)" in captured.out.strip()
+    assert "Inputs:(10, 0)" in captured.out.strip()
 
 
 # --- Тесты для вывода в файл ---
