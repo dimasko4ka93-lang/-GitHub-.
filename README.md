@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # bbank-masks
 
 Модуль маскировки банковских карт и счетов, а также обработки транзакций.
@@ -15,7 +15,7 @@
 - `get_mask_card_number(card: str) -> str` — маскирует номер карты (16 цифр) в формат `XXXX XX** **** XXXX`.
 - `get_mask_account(account: str) -> str` — маскирует счёт, оставляя последние 4 цифры: `**XXXX`.
 - `get_date(iso_datetime_str: str) -> str` — конвертирует ISO-дату с микросекундами в формат `ДД.ММ.ГГГГ`.
-<<<<<<< HEAD
+
 
 ### Модуль src/processing.py: фильтрация и сортировка операций
 
@@ -29,7 +29,7 @@
 - `filter_by_currency(transactions: list[dict], currency: str) -> generator` — принимает список словарей транзакций и код валюты. Возвращает генератор, который поочерёдно выдаёт транзакции с заданной валютой.
 - `transaction_descriptions(transactions: list[dict]) -> generator` — принимает список словарей транзакций. Использует `yield` для генерации описаний транзакций по запросу.
 - `card_number_generator(start: int, stop: int) -> generator` — принимает значения `start` и `stop` в качестве аргументов. Генерирует номера карт в заданном диапазоне, форматируя их по 4 цифры.
-=======
+
 - `filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]` — фильтрует список операций, возвращая только те, у которых поле `state` совпадает с указанным значением. По умолчанию выбираются операции со статусом `"EXECUTED"`.
 - `sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]` — сортирует список операций по дате (по полю `date` в формате ISO).
 >>>>>>> fa3035892057c80e98b490ae3ce4aa9a5a0b48da
