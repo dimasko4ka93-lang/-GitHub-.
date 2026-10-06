@@ -3,17 +3,17 @@ import logging
 import os
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # Создаем обработчик файла
 file_handler = logging.FileHandler("utils.log", encoding="utf-8")
 
-formatter = logging.Formatter(
+file_formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 # привязываем форматер к обработчику
-file_handler.setFormatter(formatter)
+file_handler.setFormatter(file_formatter)
 # Добоваляем обработчик к логгеру
 logger.addHandler(file_handler)
 

@@ -12,48 +12,16 @@
 - `get_mask_account(account: str) -> str` — маскирует счёт, оставляя последние 4 цифры: `**XXXX`.
 - `get_date(iso_datetime_str: str) -> str` — конвертирует ISO-дату с микросекундами в формат `ДД.ММ.ГГГГ`.
 
-
 ### Модуль src/processing.py: фильтрация и сортировка операций
 
-- `filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]` — фильтрует список операций, возвращая только те, у которых поле `state` совпадает с указанным значением. По умолчанию выбираются операции со статусом `"EXECUTED"`.
-- `sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]` — сортирует список операций по дате (по полю `date` в формате ISO).
+- `filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]` — фильтрует список операций.
+- `sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]` — сортирует список операций по дате.
 
 ### Модуль src/generators.py: работа с большими объёмами данных
 
-Модуль реализует генераторы для эффективной обработки данных без загрузки всего списка в память.
-
-- `filter_by_currency(transactions: list[dict], currency: str) -> generator` — принимает список словарей транзакций и код валюты. Возвращает генератор, который поочерёдно выдаёт транзакции с заданной валютой.
-- `transaction_descriptions(transactions: list[dict]) -> generator` — принимает список словарей транзакций. Использует `yield` для генерации описаний транзакций по запросу.
-- `card_number_generator(start: int, stop: int) -> generator` — принимает значения `start` и `stop` в качестве аргументов. Генерирует номера карт в заданном диапазоне, форматируя их по 4 цифры.
-
-- `filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]` — фильтрует список операций, возвращая только те, у которых поле `state` совпадает с указанным значением. По умолчанию выбираются операции со статусом `"EXECUTED"`.
-- `sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]` — сортирует список операций по дате (по полю `date` в формате ISO).
-git add README.md fa3035892057c80e98b490ae3ce4aa9a5a0b48da
-
-## Тестирование маскирования (карты и счета)
-
-Модуль `src/masks.py` покрыт тестами в `tests/test_masks.py`.
-
-### Что проверяется
-Карты:
-Стандартный формат маскирования: 7000792289606361 → 7000 79** **** 6361.
-Обработка пробелов в номере (игнорируются).
-Валидация длины: при некорректной длине выбрасывается ValueError.
-Счета:
-Маскирование до последних 4 цифр: 73654108430135874305 → **4305.
-Очистка от нецифровых символов (дефисы, буквы) перед маскированием.
-Тестирование фильтрации и сортировки
-Модуль src/processing.py покрыт тестами в tests/test_processing.py.
-
-filter_by_state
-
-### Что проверяется
-По умолчанию возвращаются только операции со статусом EXECUTED (без передачи параметра).
-Возможность передачи любого статуса (например, CANCELED) и получение только таких операций.
-
-### Декораторы логирования и утилиты проекта
-
-Этот модуль содержит набор готовых декораторов для упрощения разработки и отладки вашего кода.
+- `filter_by_currency(transactions: list[dict], currency: str) -> generator` — фильтрует по валюте.
+- `transaction_descriptions(transactions: list[dict]) -> generator` — генерирует описания.
+- `card_number_generator(start: int, stop: int) -> generator` — генерирует номера карт.
 
 ## Чтение JSON-файла
 
@@ -69,3 +37,4 @@ filter_by_state
 from src.utils import load_operations
 
 operations = load_operations("data/operations.json")
+
