@@ -1,4 +1,3 @@
-
 # Bank Masks
 
 Модуль маскировки банковских карт и счетов, а также обработки транзакций:
@@ -37,4 +36,3 @@
 from src.utils import load_operations
 
 operations = load_operations("data/operations.json")
-

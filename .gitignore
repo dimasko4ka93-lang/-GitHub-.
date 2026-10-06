@@ -222,3 +222,6 @@ __marimo__/
 *.log
 utils.log
 
+file_readers.log
+*.log
+
