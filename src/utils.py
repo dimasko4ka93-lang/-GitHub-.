@@ -3,7 +3,7 @@ import logging
 import os
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # Создаем обработчик файла
 file_handler = logging.FileHandler("utils.log", encoding="utf-8")
