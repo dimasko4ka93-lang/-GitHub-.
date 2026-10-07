@@ -21,6 +21,8 @@ def get_mask_card_number(card: str) -> str:
     Видны первые 6 и последние 4 цифры.
     Пример: 7000792289606361 → 7000 79** **** 6361
     """
+    logger.info(f"Маскировка карты: {card}")
+
     digits = "".join(ch for ch in card if ch.isdigit())
 
     if len(digits) != 16:
@@ -35,7 +37,9 @@ def get_mask_card_number(card: str) -> str:
     part3 = "****"
     part4 = last_4
 
-    return f"{part1} {part2} {part3} {part4}"
+    masked = f"{part1} {part2} {part3} {part4}"
+    logger.info(f"Результат маскировки: {masked}")
+    return masked
 
 
 def get_mask_account(account: str) -> str:
@@ -44,6 +48,8 @@ def get_mask_account(account: str) -> str:
     Видны только последние 4 цифры, перед ними две звёздочки.
     Пример: 73654108430135874305 → **4305
     """
+    logger.info(f"Маскировка счёта: {account}")
+
     digits = "".join(ch for ch in account if ch.isdigit())
 
     if len(digits) < 4:
@@ -51,4 +57,6 @@ def get_mask_account(account: str) -> str:
         raise ValueError("Номер счёта должен содержать не менее 4 цифр.")
 
     last_4 = digits[-4:]
-    return f"**{last_4}"
+    masked = f"**{last_4}"
+    logger.info(f"Результат маскировки: {masked}")
+    return masked
