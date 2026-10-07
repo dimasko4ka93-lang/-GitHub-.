@@ -18,7 +18,7 @@ def test_read_csv_valid_file(mock_read_csv):
 
     assert len(result) == 2
     assert result[0]["state"] == "EXECUTED"
-    mock_read_csv.assert_called_once_with("fake.csv")
+    mock_read_csv.assert_called_once_with("fake.csv", sep=";")
 
 
 @patch("src.file_readers.pd.read_csv")
