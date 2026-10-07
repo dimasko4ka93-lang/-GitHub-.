@@ -24,7 +24,7 @@ def read_csv(file_path: str) -> list:
     logger.info(f"Чтение CSV: {file_path}")
 
     try:
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, sep=";")
         data = df.to_dict(orient="records")
         logger.info(f"Загружено записей: {len(data)}")
         return data
