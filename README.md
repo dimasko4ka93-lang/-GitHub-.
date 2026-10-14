@@ -1,3 +1,4 @@
+```markdown
 # Bank Masks
 
 Модуль маскировки банковских карт и счетов, а также обработки транзакций:
@@ -5,34 +6,29 @@
 
 ## Возможности
 
-### Модуль src/masks.py: маскирование и форматирование
+### Модуль `src/masks.py`: маскирование и форматирование
 
-- `get_mask_card_number(card: str) -> str` — маскирует номер карты (16 цифр) в формат `XXXX XX** **** XXXX`.
-- `get_mask_account(account: str) -> str` — маскирует счёт, оставляя последние 4 цифры: `**XXXX`.
-- `get_date(iso_datetime_str: str) -> str` — конвертирует ISO-дату с микросекундами в формат `ДД.ММ.ГГГГ`.
+- `get_mask_card_number(card: str) -> str` — маскирует номер карты.
+- `get_mask_account(account: str) -> str` — маскирует счёт.
+- `get_date(iso_datetime_str: str) -> str` — конвертирует ISO-дату.
 
-### Модуль src/processing.py: фильтрация и сортировка операций
+### Модуль `src/processing.py`: фильтрация и сортировка
 
-- `filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]` — фильтрует список операций.
-- `sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]` — сортирует список операций по дате.
+- `filter_by_state(operations, state="EXECUTED") -> list[dict]` — фильтрует по статусу.
+- `sort_by_date(operations, reverse=True) -> list[dict]` — сортирует по дате.
 
-### Модуль src/generators.py: работа с большими объёмами данных
+### Модуль `src/generators.py`: генераторы
 
-- `filter_by_currency(transactions: list[dict], currency: str) -> generator` — фильтрует по валюте.
-- `transaction_descriptions(transactions: list[dict]) -> generator` — генерирует описания.
-- `card_number_generator(start: int, stop: int) -> generator` — генерирует номера карт.
+- `filter_by_currency(transactions, currency) -> generator` — фильтрует по валюте.
+- `transaction_descriptions(transactions) -> generator` — генерирует описания.
+- `card_number_generator(start, stop) -> generator` — генерирует номера карт.
 
-## Чтение JSON-файла
+### Модуль `src/search.py`: поиск по описанию
 
-Модуль `src/utils.py` содержит функцию `load_operations`.
+- `process_bank_search(data: list[dict], search: str) -> list[dict]` — ищет транзакции по описанию с помощью `re`.
 
-### Что делает
-- Принимает путь к JSON-файлу с транзакциями
-- Возвращает список словарей
-- Если файл пустой, не список или не найден → возвращает `[]`
-
-### Использование
+**Пример:**
 ```python
-from src.utils import load_operations
+from src.search import process_bank_search
 
-operations = load_operations("data/operations.json")
+result = process_bank_search(data, "перевод")
