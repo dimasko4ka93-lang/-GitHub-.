@@ -30,6 +30,17 @@ def load_data():
         return []
 
 
+def get_amount(transaction):
+    """Универсально достаёт сумму и валюту из транзакции."""
+    if "operationAmount" in transaction:
+        amount = transaction["operationAmount"].get("amount", "")
+        currency = transaction["operationAmount"].get("currency", {}).get("name", "")
+    else:
+        amount = transaction.get("amount", "")
+        currency = transaction.get("currency_name", "")
+    return amount, currency
+
+
 def main():
     """Основная логика программы."""
     data = load_data()
@@ -38,9 +49,14 @@ def main():
         return
 
     # Фильтрация по статусу
+    print("Введите статус, по которому необходимо выполнить фильтрацию.")
+    print("Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING")
+
     status = input("Введите статус: ").upper()
     while status not in ("EXECUTED", "CANCELED", "PENDING"):
         print(f'Статус "{status}" недоступен.')
+        print("Введите статус, по которому необходимо выполнить фильтрацию.")
+        print("Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING")
         status = input("Введите статус: ").upper()
 
     data = [t for t in data if t.get("state") == status]
@@ -53,28 +69,25 @@ def main():
         data.sort(key=lambda x: x.get("date", ""), reverse=reverse)
 
     # Фильтр по валюте
-    if input("Выводить только рублёвые? Да/Нет: ").lower() == "да":
-        data = [
-            t for t in data
-            if t.get("operationAmount", {}).get("currency", {}).get("code") == "RUB"
-        ]
+    if input("Выводить только рублевые транзакции? Да/Нет: ").lower() == "да":
+        data = [t for t in data if get_amount(t)[1] == "руб."]
 
     # Поиск по описанию
-    if input("Фильтровать по слову в описании? Да/Нет: ").lower() == "да":
+    if input("Отфильтровать по слову в описании? Да/Нет: ").lower() == "да":
         search = input("Введите слово: ")
         data = process_bank_search(data, search)
 
     # Вывод
-    print(f"\nВсего операций: {len(data)}")
+    print("Распечатываю итоговый список транзакций...")
+    print(f"\nВсего банковских операций в выборке: {len(data)}")
 
     if not data:
-        print("Не найдено ни одной транзакции")
+        print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации")
     else:
         for t in data:
             date = t.get("date", "")[:10]
             description = t.get("description", "")
-            amount = t.get("operationAmount", {}).get("amount", "")
-            currency = t.get("operationAmount", {}).get("currency", {}).get("name", "")
+            amount, currency = get_amount(t)
 
             print(f"\n{date} {description}")
             print(f"Сумма: {amount} {currency}")
