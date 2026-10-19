@@ -1,5 +1,7 @@
 import json
 
+from src.file_readers import read_csv, read_xlsx
+from src.masks import get_mask_account, get_mask_card_number
 from src.search import process_bank_search
 
 
@@ -15,30 +17,76 @@ def load_data():
 
     if choice == "1":
         print("Для обработки выбран JSON-файл.")
-        with open("data/operations.json", "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open("data/operations.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
     elif choice == "2":
         print("Для обработки выбран CSV-файл.")
-        from src.file_readers import read_csv
+
         return read_csv("data/transactions.csv")
     elif choice == "3":
         print("Для обработки выбран XLSX-файл.")
-        from src.file_readers import read_xlsx
+
         return read_xlsx("data/transactions_excel.xlsx")
     else:
         print("Неверный выбор")
         return []
 
 
-def get_amount(transaction):
-    """Универсально достаёт сумму и валюту из транзакции."""
+def format_transaction(transaction):
+    """Красиво форматирует одну транзакцию (с маскировкой)."""
+    date = transaction.get("date", "")[:10]
+    description = transaction.get("description", "")
+
+    # Получаем данные из JSON или CSV
     if "operationAmount" in transaction:
         amount = transaction["operationAmount"].get("amount", "")
         currency = transaction["operationAmount"].get("currency", {}).get("name", "")
     else:
         amount = transaction.get("amount", "")
         currency = transaction.get("currency_name", "")
-    return amount, currency
+
+    # Маскируем откуда и куда
+    from_acc = transaction.get("from", "")
+    to_acc = transaction.get("to", "")
+
+    # Применяем маскировку в зависимости от того, карта это или счет
+    if from_acc:
+        if from_acc.startswith("Счет"):
+            # Оставляем слово "Счет" и маскируем цифры
+            digits = "".join(ch for ch in from_acc if ch.isdigit())
+            if len(digits) >= 4:
+                from_acc = f"Счет {get_mask_account(digits)}"
+        else:
+            # Это карта, отрезаем название платежной системы и маскируем
+            digits = "".join(ch for ch in from_acc if ch.isdigit())
+            if len(digits) == 16:
+                name = "".join(ch for ch in from_acc
+                               if ch.isalpha() or ch.isspace()).strip()
+                from_acc = f"{name} {get_mask_card_number(digits)}"
+
+    if to_acc:
+        if to_acc.startswith("Счет"):
+            digits = "".join(ch for ch in to_acc if ch.isdigit())
+            if len(digits) >= 4:
+                to_acc = f"Счет {get_mask_account(digits)}"
+        else:
+            digits = "".join(ch for ch in to_acc if ch.isdigit())
+            if len(digits) == 16:
+                name = "".join(
+                    ch for ch in to_acc if ch.isalpha() or ch.isspace()
+                ).strip()
+                to_acc = f"{name} {get_mask_card_number(digits)}"
+
+    # Собираем строку
+    result = f"\n{date} {description}"
+    if from_acc and to_acc:
+        result += f"\n{from_acc} -> {to_acc}"
+    result += f"\nСумма: {amount} {currency}\n"
+
+    return result
 
 
 def main():
@@ -59,7 +107,9 @@ def main():
         print("Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING")
         status = input("Введите статус: ").upper()
 
-    data = [t for t in data if t.get("state") == status]
+    # Фильтруем по статусу
+    if "state" in data[0]:
+        data = [t for t in data if t.get("state") == status]
     print(f'Операции отфильтрованы по статусу "{status}"')
 
     # Сортировка
@@ -70,7 +120,18 @@ def main():
 
     # Фильтр по валюте
     if input("Выводить только рублевые транзакции? Да/Нет: ").lower() == "да":
-        data = [t for t in data if get_amount(t)[1] == "руб."]
+        # Универсальная проверка для JSON и CSV
+        filtered_data = []
+        for t in data:
+            if (
+                    "operationAmount" in t
+                    and t["operationAmount"]["currency"]["name"] == "руб."
+            ):
+
+                filtered_data.append(t)
+            elif t.get("currency_name") == "Ruble":
+                filtered_data.append(t)
+        data = filtered_data
 
     # Поиск по описанию
     if input("Отфильтровать по слову в описании? Да/Нет: ").lower() == "да":
@@ -85,12 +146,7 @@ def main():
         print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации")
     else:
         for t in data:
-            date = t.get("date", "")[:10]
-            description = t.get("description", "")
-            amount, currency = get_amount(t)
-
-            print(f"\n{date} {description}")
-            print(f"Сумма: {amount} {currency}")
+            print(format_transaction(t))
 
 
 if __name__ == "__main__":

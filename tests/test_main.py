@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
-from src.main import main
+from main import main
 
 
-@patch("src.main.load_data")
+@patch("main.load_data")
 @patch("builtins.input")
 def test_main_no_data(mock_input, mock_load):
     """Если данных нет — сообщение."""
@@ -13,7 +13,7 @@ def test_main_no_data(mock_input, mock_load):
     main()  # не должно упасть
 
 
-@patch("src.main.load_data")
+@patch("main.load_data")
 @patch("builtins.input")
 def test_main_simple(mock_input, mock_load):
     """Простой сценарий."""
